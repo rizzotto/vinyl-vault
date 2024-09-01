@@ -26,7 +26,7 @@ export default function VinylList() {
       setError("");
       try {
         const searchResponse = await fetch(
-          `https://api.discogs.com/database/search?type=master&sort=have&sort_order=desc&genre=Hip%20Hop&format_exact=Vinyl&token=${process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN}`
+          `https://api.discogs.com/database/search?type=master&sort=have&sort_order=desc&genre=Hip%20Hop&token=${process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN}&format=Vinyl`
         );
 
         if (!searchResponse.ok) {
@@ -55,13 +55,12 @@ export default function VinylList() {
   ));
 
   return (
-    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-zinc-600  overflow-y-scroll">
+    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100  overflow-y-scroll">
       {loading && skeletons}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {results &&
         results.map((result, index) => {
           const [artist, title] = result.title.split("-");
-          // console.log(result);
           return (
             <motion.div
               key={result.id}
@@ -77,6 +76,7 @@ export default function VinylList() {
                 country={result.country}
                 genre={result.genre}
                 year={result.year}
+                key={result.master_id}
               />
             </motion.div>
           );

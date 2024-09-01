@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
-import vynil from "@/assets/blonde-vynil.png";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect } from "react";
+import vinyl from "@/assets/vinyl.png";
 import { useOnClickOutside } from "usehooks-ts";
 import "./styles.css";
 import { StaticImageData } from "next/image";
@@ -13,6 +13,8 @@ import { Separator } from "../Separator";
 import { Badge } from "../Badge";
 import { Spotify } from "react-spotify-embed";
 import { ScrollArea } from "../ScrollArea";
+import { Button } from "../Button";
+import { Cross1Icon } from "@radix-ui/react-icons";
 
 const encodedCredentials = btoa(
   `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
@@ -26,6 +28,7 @@ export function Vinyl({
   country,
   genre,
   year,
+  ...rest
 }: {
   artist: string;
   id: string;
@@ -148,14 +151,21 @@ export function Vinyl({
       </AnimatePresence>
       <AnimatePresence>
         {click ? (
-          <div className="absolute inset-0 z-30 flex items-center justify-center text-slate-400">
+          <div className="absolute inset-0 z-30 flex items-center justify-center text-vinyl-300">
             <motion.div
               key={`${id}-selected`}
               layoutId={`${id}-inner`}
               ref={ref}
-              className="inner relative flex h-fit flex-col overflow-hidden bg-slate-600 p-8 min-w-[400px] items-start gap-4"
+              className="inner relative flex h-fit flex-col overflow-hidden bg-vinyl-100 p-8 min-w-[200px] md:min-w-[400px] items-start gap-4"
               style={{ borderRadius: 12 }}
             >
+              <Button
+                onClick={() => setClick(false)}
+                className="py-2 px-1 h-[24px] bg-transparent absolute top-2 right-2"
+                variant="ghost"
+              >
+                <Cross1Icon />
+              </Button>
               <div className="flex items-start w-full gap-4">
                 <motion.img
                   className="rounded-md h-[200px] w-[200px]"
@@ -174,30 +184,37 @@ export function Vinyl({
                 </div>
               </div>
               <ul className="flex gap-2">
-                {genre.map((g) => (
-                  <Badge variant="outline">{g}</Badge>
+                {genre.map((g, i) => (
+                  <Badge key={`${g}-${i}`} variant="outline">
+                    {g}
+                  </Badge>
                 ))}
               </ul>
-
-              <h3 className="text-3xl font-bold">{title}</h3>
-              <h5>{artist}</h5>
+              <div>
+                <h3 className="text-3xl font-bold">{title}</h3>
+                <h5>{artist}</h5>
+              </div>
               {loadContent ? (
-                <Skeleton className="h-[200px] w-[90%] rounded-xl" />
+                <Skeleton className="h-[220px] w-[100%] rounded-xl" />
               ) : (
                 <>
                   <Separator />
                   <ScrollArea className="h-[200px] w-full">
                     <ul>
-                      {content.tracklist.map((t) => (
-                        <div className="flex justify-between">
+                      {content.tracklist.map((t, i) => (
+                        <div
+                          key={`${t}-${i}`}
+                          className="flex justify-between my-2 mr-3"
+                        >
                           <div
                             className={cn(
-                              t.type_ === "heading" && "font-bold bg-black"
+                              t.type_ === "heading" &&
+                                "font-bold bg-vinyl-200 w-full p-1 rounded-md"
                             )}
                           >
                             {t.title}
                           </div>
-                          <div>{t.duration}</div>
+                          <div>{t.position}</div>
                         </div>
                       ))}
                     </ul>
@@ -213,7 +230,7 @@ export function Vinyl({
           </div>
         ) : null}
       </AnimatePresence>
-      <div className="flex">
+      <div className="flex" {...rest}>
         <AnimatePresence mode="popLayout">
           <motion.div
             key={`${id}-wrapper`}
@@ -252,7 +269,7 @@ export function Vinyl({
                 type: "smooth",
                 duration: 0.3,
               }}
-              src={vynil.src}
+              src={vinyl.src}
               alt="floater"
             />
           </motion.div>

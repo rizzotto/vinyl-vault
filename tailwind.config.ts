@@ -20,6 +20,12 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        vinyl: {
+          100: "#654345",
+          200: "#52393A",
+          300: "#FDF7E5",
+          400: "#52393F",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

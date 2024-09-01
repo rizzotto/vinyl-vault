@@ -30,12 +30,14 @@ import {
 import { Button } from "../Button";
 import { useAppContext } from "@/app/context/app_context";
 
-async function searchMasterRelease(query: string) {
+async function searchMasterRelease(query?: string, genre?: string) {
   try {
     const searchResponse = await fetch(
-      `https://api.discogs.com/database/search?q=${encodeURIComponent(
-        query
-      )}&type=master&format_exact=Vinyl&token=${
+      `https://api.discogs.com/database/search?${
+        query ? `q=${encodeURIComponent(query)}` : ""
+      }${
+        genre ? `&genre=${encodeURIComponent(genre)}` : ""
+      }&type=master&format=Vinyl&token=${
         process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN
       }`
     );
@@ -61,15 +63,15 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
   //   useOnClickOutside(ref, () => setOpen(false));
 
   const formSchema = z.object({
-    search: z.string().min(2).max(50),
+    search: z.string().min(2).max(50).optional(),
     genre: z.string().min(2).max(50).optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      search: "",
-      genre: "",
+      search: undefined,
+      genre: undefined,
     },
   });
 
@@ -77,7 +79,10 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
     setLoading(true);
 
     try {
-      const searchData = await searchMasterRelease(values.search);
+      const searchData = await searchMasterRelease(
+        values.search,
+        values.genre === "none" ? undefined : values.genre
+      );
       setResults(searchData.results);
     } catch (error) {
       console.error("Failed to fetch master release");
@@ -102,8 +107,8 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
           scale: 0.9,
         }}
         key="button"
-        className="fixed bottom-5 right-10 p-4 border bg-zinc-800 text-gray-200 z-30"
-        style={{ borderRadius: 16 }}
+        className="fixed bottom-5 right-10 p-4 bg-vinyl-300 text-vinyl-100 z-30"
+        style={{ borderRadius: 16, border: "1px solid #654345" }}
         layoutId="wrapper"
       >
         <motion.div layoutId="search">
@@ -115,8 +120,8 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         {open ? (
           <motion.div
             ref={ref}
-            className="filters-popover fixed bottom-5 right-10 z-40 border bg-zinc-800 text-gray-200 p-6 max-w-[280px] md:max-w-[450px]"
-            style={{ borderRadius: 16 }}
+            className="filters-popover fixed bottom-5 right-10 z-40 bg-vinyl-300 text-vinyl-100 p-6 max-w-[280px] md:max-w-[450px]"
+            style={{ borderRadius: 16, border: "1px solid #654345" }}
             layoutId="wrapper"
           >
             <div>
@@ -143,7 +148,7 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
                             <Input
                               autoFocus
                               placeholder="Anything :)"
-                              className="pl-8 pr-4 py-2 border rounded-md"
+                              className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100"
                               {...field}
                             />
                             <motion.div
@@ -175,14 +180,16 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="m@example.com">
-                              m@example.com
-                            </SelectItem>
-                            <SelectItem value="m@google.com">
-                              m@google.com
-                            </SelectItem>
-                            <SelectItem value="m@support.com">
-                              m@support.com
+                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="Hip Hop">Hip Hop</SelectItem>
+                            <SelectItem value="Pop">Pop</SelectItem>
+                            <SelectItem value="Blues">Blues</SelectItem>
+                            <SelectItem value="Jazz">Jazz</SelectItem>
+                            <SelectItem value="Reggae">Reggae</SelectItem>
+                            <SelectItem value="Classical">Classical</SelectItem>
+                            <SelectItem value="Latin">Latin</SelectItem>
+                            <SelectItem value="Folk, World & Country">
+                              Folk, World & Country
                             </SelectItem>
                           </SelectContent>
                         </Select>

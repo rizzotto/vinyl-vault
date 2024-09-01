@@ -30,7 +30,7 @@ export default function Home() {
             // overflow: "auto",
           }
         }
-        className="h-screen relative flex flex-col bg-[#212121]"
+        className="h-screen relative flex flex-col bg-vinyl-300"
       >
         {/* <div
           className={cn(
