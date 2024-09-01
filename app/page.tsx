@@ -7,17 +7,7 @@ import { Filters } from "./components/Filters";
 import { AppContextProvider } from "./context/app_context";
 import { playfair } from "./fonts";
 import { cn } from "@/lib/utils";
-// import fetchPopularAlbums from "@/api/popularAlbums";
-
-async function fetchPosts() {
-  const res = await fetch("https://api.example.com/posts");
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-
-  return res.json();
-}
+import { ModeToggle } from "./components/DropdownMenu";
 
 export default function Home() {
   return (
@@ -30,16 +20,17 @@ export default function Home() {
             // overflow: "auto",
           }
         }
-        className="h-screen relative flex flex-col bg-vinyl-300"
+        className="h-screen relative flex flex-col bg-vinyl-300 dark:bg-vinyl-100"
       >
-        {/* <div
+        <div
           className={cn(
             playfair.className,
-            "font-extrabold text-3xl text-red-700 tracking-wider px-12 py-4"
+            "flex justify-between font-extrabold text-3xl text-vinyl-100 dark:text-vinyl-300 tracking-wider px-12 py-4"
           )}
         >
-          Vinyl Vault
-        </div> */}
+          <div>Vinyl Vault</div>
+          <ModeToggle />
+        </div>
         <Filters />
         <VinylList />
       </div>

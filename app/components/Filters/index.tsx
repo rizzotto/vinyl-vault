@@ -29,6 +29,7 @@ import {
 } from "../Form";
 import { Button } from "../Button";
 import { useAppContext } from "@/app/context/app_context";
+import { useTheme } from "next-themes";
 
 async function searchMasterRelease(query?: string, genre?: string) {
   try {
@@ -55,6 +56,7 @@ async function searchMasterRelease(query?: string, genre?: string) {
 }
 
 export function Filters({ id, title }: { id?: string; title?: string }) {
+  const { theme } = useTheme();
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
 
@@ -107,8 +109,13 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
           scale: 0.9,
         }}
         key="button"
-        className="fixed bottom-5 right-10 p-4 bg-vinyl-300 text-vinyl-100 z-30"
-        style={{ borderRadius: 16, border: "1px solid #654345" }}
+        className="fixed bottom-5 right-10 p-4 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  z-30"
+        style={{
+          borderRadius: 16,
+          border: `1px solid ${
+            theme === "dark" || theme === "system" ? "#FDF7E5" : "#654345"
+          }`,
+        }}
         layoutId="wrapper"
       >
         <motion.div layoutId="search">
@@ -120,8 +127,13 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         {open ? (
           <motion.div
             ref={ref}
-            className="filters-popover fixed bottom-5 right-10 z-40 bg-vinyl-300 text-vinyl-100 p-6 max-w-[280px] md:max-w-[450px]"
-            style={{ borderRadius: 16, border: "1px solid #654345" }}
+            className="filters-popover fixed bottom-5 right-10 z-40 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  p-6 max-w-[280px] md:max-w-[450px]"
+            style={{
+              borderRadius: 16,
+              border: `1px solid ${
+                theme === "dark" || theme === "system" ? "#FDF7E5" : "#654345"
+              }`,
+            }}
             layoutId="wrapper"
           >
             <div>
@@ -148,7 +160,7 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
                             <Input
                               autoFocus
                               placeholder="Anything :)"
-                              className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100"
+                              className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100 dark:placeholder:text-vinyl-300 dark:text-vinyl-300"
                               {...field}
                             />
                             <motion.div

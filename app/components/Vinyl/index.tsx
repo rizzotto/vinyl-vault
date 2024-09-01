@@ -151,12 +151,12 @@ export function Vinyl({
       </AnimatePresence>
       <AnimatePresence>
         {click ? (
-          <div className="absolute inset-0 z-30 flex items-center justify-center text-vinyl-300">
+          <div className="absolute inset-0 z-30 flex items-center justify-center text-vinyl-300 dark:text-vinyl-100">
             <motion.div
               key={`${id}-selected`}
               layoutId={`${id}-inner`}
               ref={ref}
-              className="inner relative flex h-fit flex-col overflow-hidden bg-vinyl-100 p-8 min-w-[200px] md:min-w-[400px] items-start gap-4"
+              className="inner relative flex h-fit flex-col overflow-hidden bg-vinyl-100 dark:bg-vinyl-300 p-8 min-w-[200px] md:min-w-[400px] items-start gap-4"
               style={{ borderRadius: 12 }}
             >
               <Button

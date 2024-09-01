@@ -55,7 +55,7 @@ export default function VinylList() {
   ));
 
   return (
-    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100  overflow-y-scroll">
+    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100  overflow-y-scroll">
       {loading && skeletons}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {results &&
