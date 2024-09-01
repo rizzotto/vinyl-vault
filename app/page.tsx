@@ -23,12 +23,14 @@ export default function Home() {
   return (
     <AppContextProvider>
       <div
-        style={{
-          backgroundImage: `url(${wall.src})`,
-          backgroundRepeat: "repeat",
-          overflow: "auto",
-        }}
-        className="h-screen relative flex flex-col"
+        style={
+          {
+            // backgroundImage: `url(${wall.src})`,
+            // backgroundRepeat: "repeat",
+            // overflow: "auto",
+          }
+        }
+        className="h-screen relative flex flex-col bg-[#212121]"
       >
         {/* <div
           className={cn(

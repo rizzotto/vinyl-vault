@@ -10,6 +10,8 @@ import React from "react";
 import { Filters } from "../Filters";
 import { useAppContext } from "@/app/context/app_context";
 import { Skeleton } from "../Skeleton";
+import { ScrollArea } from "../ScrollArea";
+import { motion } from "framer-motion";
 // import fetchPopularAlbums from "@/api/popularAlbums";
 
 export default function VinylList() {
@@ -18,15 +20,13 @@ export default function VinylList() {
 
   const { results, setResults, loading, setLoading } = useAppContext();
 
-  const YOUR_DISCOGS_TOKEN = process.env.NEXT_PUBLIC_DISCOGS_TOKEN;
-
   React.useEffect(() => {
     const fetchTrendingReleases = async () => {
       setLoading(true);
       setError("");
       try {
         const searchResponse = await fetch(
-          `https://api.discogs.com/database/search?type=master&sort=have&sort_order=desc&genre=Hip%20Hop&format_exact=Vinyl&token=vwWdHlFoJFyjKaIkExbJbrmbRMOmzHyFbmqfWxXC`
+          `https://api.discogs.com/database/search?type=master&sort=have&sort_order=desc&genre=Hip%20Hop&format_exact=Vinyl&token=${process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN}`
         );
 
         if (!searchResponse.ok) {
@@ -55,17 +55,32 @@ export default function VinylList() {
   ));
 
   return (
-    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-x-hidden py-8">
+    <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-zinc-600  overflow-y-scroll">
       {loading && skeletons}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {results &&
-        results.map((result) => (
-          <Vinyl
-            id={result.id}
-            cover={result.cover_image}
-            title={result.title.split("-")[1]}
-          />
-        ))}
+        results.map((result, index) => {
+          const [artist, title] = result.title.split("-");
+          // console.log(result);
+          return (
+            <motion.div
+              key={result.id}
+              initial={{ opacity: 0, y: Math.random() * 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+            >
+              <Vinyl
+                id={result.master_id}
+                cover={result.cover_image}
+                title={title}
+                artist={artist}
+                country={result.country}
+                genre={result.genre}
+                year={result.year}
+              />
+            </motion.div>
+          );
+        })}
     </div>
   );
 }

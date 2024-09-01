@@ -2,24 +2,46 @@
 
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import clsx from "clsx";
 import vynil from "@/assets/blonde-vynil.png";
 import { useOnClickOutside } from "usehooks-ts";
 import "./styles.css";
 import { StaticImageData } from "next/image";
 import { useAppContext } from "@/app/context/app_context";
+import { Skeleton } from "../Skeleton";
+import { cn } from "@/lib/utils";
+import { Separator } from "../Separator";
+import { Badge } from "../Badge";
+import { Spotify } from "react-spotify-embed";
+import { ScrollArea } from "../ScrollArea";
+
+const encodedCredentials = btoa(
+  `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
+);
 
 export function Vinyl({
   id,
   cover,
   title,
+  artist,
+  country,
+  genre,
+  year,
 }: {
+  artist: string;
   id: string;
   title: string;
   cover: StaticImageData;
+  country: string;
+  genre: [];
+  year: string;
 }) {
   const [hover, setHover] = React.useState(false);
   const [click, setClick] = React.useState(false);
+
+  const [content, setContent] = React.useState([]);
+  const [loadContent, setLoadContent] = React.useState(false);
+
+  const [lala, setLala] = React.useState(null);
 
   const { loading } = useAppContext();
 
@@ -41,6 +63,77 @@ export function Vinyl({
 
   if (loading) return null;
 
+  async function getAccessToken() {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${encodedCredentials}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "grant_type=client_credentials",
+    });
+
+    const data = await response.json();
+    return data.access_token; // Use this token in your API requests
+  }
+
+  async function searchSpotifyAlbum() {
+    const token = await getAccessToken();
+    const query = `album:${encodeURIComponent(
+      title
+    )} artist:${encodeURIComponent(artist)}`;
+    const url = `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`;
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Spotify API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.albums.items.length > 0) {
+        // console.log(data.albums.items[0]);
+        setLala(data.albums.items[0].external_urls.spotify); // Return the first matching album
+      }
+
+      return null; // No album found
+    } catch (error) {
+      console.error("Error searching Spotify:", error);
+      throw error;
+    }
+  }
+
+  const fetchTrendingReleases = async () => {
+    setLoadContent(true);
+    try {
+      const searchResponse = await fetch(
+        `https://api.discogs.com/masters/${id}`
+      );
+
+      if (!searchResponse.ok) {
+        throw new Error(`Error: ${searchResponse.statusText}`);
+      }
+
+      const searchData = await searchResponse.json();
+      setContent(searchData);
+    } catch (error) {
+      // setError("Failed to fetch trending releases");
+    } finally {
+      setLoadContent(false);
+    }
+  };
+
+  async function handleCoverClick() {
+    fetchTrendingReleases();
+    searchSpotifyAlbum();
+    setClick(true);
+  }
+
   return (
     <>
       <AnimatePresence>
@@ -55,35 +148,67 @@ export function Vinyl({
       </AnimatePresence>
       <AnimatePresence>
         {click ? (
-          <div className="absolute inset-0 z-30 flex items-center justify-center">
+          <div className="absolute inset-0 z-30 flex items-center justify-center text-slate-400">
             <motion.div
               key={`${id}-selected`}
               layoutId={`${id}-inner`}
               ref={ref}
-              className="relative flex h-fit flex-col overflow-hidden bg-slate-600 p-8 min-w-96 items-center gap-6"
+              className="inner relative flex h-fit flex-col overflow-hidden bg-slate-600 p-8 min-w-[400px] items-start gap-4"
               style={{ borderRadius: 12 }}
             >
-              <motion.img
-                className="rounded-md h-[200px] w-[200px]"
-                layoutId={`${id}-cover`}
-                src={cover}
-              />
+              <div className="flex items-start w-full gap-4">
+                <motion.img
+                  className="rounded-md h-[200px] w-[200px]"
+                  layoutId={`${id}-cover`}
+                  src={cover}
+                />
+                <div>
+                  <div>
+                    <div>Year</div>
+                    <Badge>{year}</Badge>
+                  </div>
+                  <div>
+                    <div>Country</div>
+                    <Badge>{country}</Badge>
+                  </div>
+                </div>
+              </div>
+              <ul className="flex gap-2">
+                {genre.map((g) => (
+                  <Badge variant="outline">{g}</Badge>
+                ))}
+              </ul>
 
-              <motion.div
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.05 } }}
-                className="w-full text-slate-100"
-              >
-                <h3 className="text-3xl font-bold">{title}</h3>
-                <ul>
-                  <li>Song 1</li>
-                  <li>Song 2</li>
-                  <li>Song 3</li>
-                  <li>Song 4</li>
-                </ul>
-              </motion.div>
+              <h3 className="text-3xl font-bold">{title}</h3>
+              <h5>{artist}</h5>
+              {loadContent ? (
+                <Skeleton className="h-[200px] w-[90%] rounded-xl" />
+              ) : (
+                <>
+                  <Separator />
+                  <ScrollArea className="h-[200px] w-full">
+                    <ul>
+                      {content.tracklist.map((t) => (
+                        <div className="flex justify-between">
+                          <div
+                            className={cn(
+                              t.type_ === "heading" && "font-bold bg-black"
+                            )}
+                          >
+                            {t.title}
+                          </div>
+                          <div>{t.duration}</div>
+                        </div>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </>
+              )}
+              {!lala ? (
+                <Skeleton className="h-[136px] w-[100%px] rounded-xl" />
+              ) : (
+                <Spotify wide width="100%" link={lala} />
+              )}
             </motion.div>
           </div>
         ) : null}
@@ -95,13 +220,10 @@ export function Vinyl({
             layoutId={`${id}-inner`}
             className="relative"
           >
-            {/* {hover ? ( */}
-
-            {/* ) : null} */}
             <button
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
-              onClick={() => setClick(true)}
+              onClick={handleCoverClick}
               className="cursor-pointer"
               style={{ position: "relative", zIndex: 20 }}
             >

@@ -35,7 +35,9 @@ async function searchMasterRelease(query: string) {
     const searchResponse = await fetch(
       `https://api.discogs.com/database/search?q=${encodeURIComponent(
         query
-      )}&type=master&format_exact=Vinyl&token=vwWdHlFoJFyjKaIkExbJbrmbRMOmzHyFbmqfWxXC`
+      )}&type=master&format_exact=Vinyl&token=${
+        process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN
+      }`
     );
 
     if (!searchResponse.ok) {
@@ -96,8 +98,11 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         onClick={() => {
           setOpen(true);
         }}
+        whileTap={{
+          scale: 0.9,
+        }}
         key="button"
-        className="fixed bottom-5 right-10 p-4 border bg-gray-300 dark:bg-zinc-800 z-40"
+        className="fixed bottom-5 right-10 p-4 border bg-zinc-800 text-gray-200 z-30"
         style={{ borderRadius: 16 }}
         layoutId="wrapper"
       >
@@ -110,7 +115,7 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         {open ? (
           <motion.div
             ref={ref}
-            className="filters-popover fixed bottom-5 right-10 z-40 bg-gray-300 dark:bg-zinc-800 p-6 max-w-[280px] md:max-w-[450px]"
+            className="filters-popover fixed bottom-5 right-10 z-40 border bg-zinc-800 text-gray-200 p-6 max-w-[280px] md:max-w-[450px]"
             style={{ borderRadius: 16 }}
             layoutId="wrapper"
           >
