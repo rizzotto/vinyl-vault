@@ -15,7 +15,7 @@ import { Spotify } from "react-spotify-embed";
 import { ScrollArea } from "../ScrollArea";
 
 const encodedCredentials = btoa(
-  `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
+  `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
 );
 
 export function Vinyl({

@@ -130,7 +130,7 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
+                  className="space-y-4 flex flex-col"
                 >
                   <FormField
                     control={form.control}
