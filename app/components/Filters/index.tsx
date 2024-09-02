@@ -85,7 +85,22 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         values.search,
         values.genre === "none" ? undefined : values.genre
       );
-      setResults(searchData.results);
+
+      if (searchData.results.length === 0) {
+        setResults([
+          {
+            master_id: "none",
+            cover_image: "none",
+            title: "none",
+            artist: "none",
+            country: "none",
+            genre: [],
+            year: "none",
+          },
+        ]);
+      } else {
+        setResults(searchData.results);
+      }
     } catch (error) {
       console.error("Failed to fetch master release");
     } finally {
@@ -98,9 +113,6 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
 
   return (
     <>
-      {/* <div className="fixed bottom-5 right-10 p-4 border rounded-full bg-zinc-800">
-        <Search />
-      </div> */}
       <motion.button
         onClick={() => {
           setOpen(true);

@@ -20,6 +20,35 @@ const encodedCredentials = btoa(
   `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
 );
 
+type VinylType = {
+  tracklist: [
+    {
+      position: string;
+      duration: string;
+      title: string;
+      type_: string;
+      extraartists: {
+        anv: string;
+        id: number;
+        join: string;
+        name: string;
+        resource_url: string;
+        role: string;
+        tracks: string;
+      };
+    }
+  ];
+  videos: [
+    {
+      description: string;
+      duration: number;
+      embed: boolean;
+      title: string;
+      uri: string;
+    }
+  ];
+};
+
 export function Vinyl({
   id,
   cover,
@@ -33,7 +62,7 @@ export function Vinyl({
   artist: string;
   id: string;
   title: string;
-  cover: StaticImageData;
+  cover: string;
   country: string;
   genre: [];
   year: string;
@@ -41,7 +70,7 @@ export function Vinyl({
   const [hover, setHover] = React.useState(false);
   const [click, setClick] = React.useState(false);
 
-  const [content, setContent] = React.useState([]);
+  const [content, setContent] = React.useState<VinylType | null>(null);
   const [loadContent, setLoadContent] = React.useState(false);
 
   const [lala, setLala] = React.useState(null);
@@ -132,8 +161,10 @@ export function Vinyl({
   };
 
   async function handleCoverClick() {
-    fetchTrendingReleases();
-    searchSpotifyAlbum();
+    if (!content) {
+      fetchTrendingReleases();
+      searchSpotifyAlbum();
+    }
     setClick(true);
   }
 
@@ -194,9 +225,7 @@ export function Vinyl({
                 <h3 className="text-3xl font-bold">{title}</h3>
                 <h5>{artist}</h5>
               </div>
-              {loadContent ? (
-                <Skeleton className="h-[220px] w-[100%] rounded-xl" />
-              ) : (
+              {!loadContent && content && content.tracklist ? (
                 <>
                   <Separator />
                   <ScrollArea className="h-[200px] w-full">
@@ -220,9 +249,11 @@ export function Vinyl({
                     </ul>
                   </ScrollArea>
                 </>
+              ) : (
+                <Skeleton className="h-[220px] w-[100%] rounded-xl" />
               )}
               {!lala ? (
-                <Skeleton className="h-[136px] w-[100%px] rounded-xl" />
+                <Skeleton className="h-[80px] w-[100%px] rounded-xl" />
               ) : (
                 <Spotify wide width="100%" link={lala} />
               )}
