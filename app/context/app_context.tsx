@@ -12,11 +12,24 @@ export type DataType = {
   year: string;
 };
 
+type FilterType = {
+  search?: string;
+  genre?: string;
+};
+
 interface AppContextValue {
-  results: DataType[];
-  setResults: React.Dispatch<React.SetStateAction<DataType[]>>;
+  results: DataType[] | null;
+  setResults: React.Dispatch<React.SetStateAction<DataType[] | null>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  totalPages: number;
+  setTotalPages: React.Dispatch<React.SetStateAction<number>>;
+  filters: FilterType;
+  setFilters: React.Dispatch<React.SetStateAction<FilterType>>;
+  error: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AppContext = React.createContext<AppContextValue | undefined>(undefined);
@@ -24,21 +37,34 @@ const AppContext = React.createContext<AppContextValue | undefined>(undefined);
 export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [results, setResults] = React.useState<DataType[]>([
-    {
-      master_id: "initial",
-      cover_image: "initial",
-      title: "initial",
-      artist: "initial",
-      country: "initial",
-      genre: [],
-      year: "initial",
-    },
-  ]);
+  const [results, setResults] = React.useState<DataType[] | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
 
+  const [page, setPage] = React.useState<number>(1);
+  const [totalPages, setTotalPages] = React.useState<number>(1);
+  const [filters, setFilters] = React.useState<FilterType>({
+    search: undefined,
+    genre: undefined,
+  });
+  const [error, setError] = React.useState("");
+
   return (
-    <AppContext.Provider value={{ results, setResults, loading, setLoading }}>
+    <AppContext.Provider
+      value={{
+        results,
+        setResults,
+        loading,
+        setLoading,
+        page,
+        setPage,
+        totalPages,
+        setTotalPages,
+        filters,
+        setFilters,
+        error,
+        setError,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

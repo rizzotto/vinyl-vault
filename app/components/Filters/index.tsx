@@ -31,36 +31,12 @@ import { Button } from "../Button";
 import { useAppContext } from "@/app/context/app_context";
 import { useTheme } from "next-themes";
 
-async function searchMasterRelease(query?: string, genre?: string) {
-  try {
-    const searchResponse = await fetch(
-      `https://api.discogs.com/database/search?${
-        query ? `q=${encodeURIComponent(query)}` : ""
-      }${
-        genre ? `&genre=${encodeURIComponent(genre)}` : ""
-      }&type=master&format=Vinyl&token=${
-        process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN
-      }`
-    );
-
-    if (!searchResponse.ok) {
-      throw new Error(`Error: ${searchResponse.statusText}`);
-    }
-
-    const searchData = await searchResponse.json();
-    return searchData;
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
-}
-
 export function Filters({ id, title }: { id?: string; title?: string }) {
   const { theme } = useTheme();
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
 
-  const { setResults, setLoading } = useAppContext();
+  const { setLoading, setFilters } = useAppContext();
 
   //   useOnClickOutside(ref, () => setOpen(false));
 
@@ -80,35 +56,13 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    try {
-      const searchData = await searchMasterRelease(
-        values.search,
-        values.genre === "none" ? undefined : values.genre
-      );
+    setFilters({
+      search: values.search,
+      genre: values.genre === "none" ? undefined : values.genre,
+    });
 
-      if (searchData.results.length === 0) {
-        setResults([
-          {
-            master_id: "none",
-            cover_image: "none",
-            title: "none",
-            artist: "none",
-            country: "none",
-            genre: [],
-            year: "none",
-          },
-        ]);
-      } else {
-        setResults(searchData.results);
-      }
-    } catch (error) {
-      console.error("Failed to fetch master release");
-    } finally {
-      setLoading(false);
-      setOpen(false);
-    }
-
-    console.log(values);
+    setOpen(false);
+    form.reset();
   }
 
   return (

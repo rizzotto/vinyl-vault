@@ -140,7 +140,7 @@ export function Vinyl({
     }
   }
 
-  const fetchTrendingReleases = async () => {
+  const fetchVinyl = async () => {
     setLoadContent(true);
     try {
       const searchResponse = await fetch(
@@ -162,7 +162,7 @@ export function Vinyl({
 
   async function handleCoverClick() {
     if (!content) {
-      fetchTrendingReleases();
+      fetchVinyl();
       searchSpotifyAlbum();
     }
     setClick(true);
