@@ -30,25 +30,27 @@ export default function VinylList() {
 
   const filtersQuery = (newPage = 1) =>
     `https://api.discogs.com/database/search?${
-      filters.search ? `q=${encodeURIComponent(filters.search)}` : ""
-    }${
+      filters.vinyl ? `q=${encodeURIComponent(filters.vinyl)}` : ""
+    }${filters.artist ? `q=${encodeURIComponent(filters.artist)}` : ""}${
       filters.genre ? `&genre=${encodeURIComponent(filters.genre)}` : ""
-    }&type=master&format=Vinyl&token=${
+    }&format=Vinyl&token=${
       process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN
-    }&page=${newPage}&per_page=20`;
+    }&page=${newPage}&per_page=50`;
 
   const query = (newPage = 1) =>
     `https://api.discogs.com/database/search?type=master&sort=have&sort_order=desc&genre=Hip%20Hop&token=${process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN}&format=Vinyl&page=${newPage}&per_page=20`;
 
   React.useEffect(() => {
     handlePageChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   async function handlePageChange(newPage = 1) {
     setPage(newPage);
-    console.log(filters);
     await fetchVinyls(
-      filters.search !== undefined || filters.genre !== undefined
+      filters.vinyl !== undefined ||
+        filters.genre !== undefined ||
+        filters.artist !== undefined
         ? filtersQuery(newPage)
         : query(newPage),
       newPage
@@ -98,6 +100,13 @@ export default function VinylList() {
     </div>
   ));
 
+  const filteredResults = results
+    ? results.filter(
+        (result, index, self) =>
+          index === self.findIndex((r) => r.master_id === result.master_id)
+      )
+    : [];
+
   return (
     <>
       {results && results.length === 0 && (
@@ -128,7 +137,7 @@ export default function VinylList() {
           <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100 dark:scrollbar-thumb-vinyl-300  overflow-y-scroll bg-vinyl-300 dark:bg-vinyl-100">
             {loading
               ? skeletons
-              : results.map((result, index) => {
+              : filteredResults.map((result, index) => {
                   const [artist, title] = result.title.split("-");
                   return (
                     <motion.div
@@ -145,13 +154,15 @@ export default function VinylList() {
                         country={result.country}
                         genre={result.genre}
                         year={result.year}
-                        key={result.master_id}
+                        formats={result.format}
                       />
                     </motion.div>
                   );
                 })}
           </div>
-          {results.length > 0 && <Pagination>{renderPagination()}</Pagination>}
+          {results.length > 0 && (
+            <Pagination className="my-1">{renderPagination()}</Pagination>
+          )}
         </>
       )}
     </>

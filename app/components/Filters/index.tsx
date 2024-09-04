@@ -3,7 +3,6 @@
 import React from "react";
 import "./styles.css";
 import { AnimatePresence, motion } from "framer-motion";
-import { useOnClickOutside } from "usehooks-ts";
 import { Input } from "../Input";
 import { Cross1Icon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import {
@@ -29,10 +28,8 @@ import {
 } from "../Form";
 import { Button } from "../Button";
 import { useAppContext } from "@/app/context/app_context";
-import { useTheme } from "next-themes";
 
-export function Filters({ id, title }: { id?: string; title?: string }) {
-  const { theme } = useTheme();
+export function Filters() {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
 
@@ -41,14 +38,16 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
   //   useOnClickOutside(ref, () => setOpen(false));
 
   const formSchema = z.object({
-    search: z.string().min(2).max(50).optional(),
+    artist: z.string().min(2).max(50).optional(),
     genre: z.string().min(2).max(50).optional(),
+    vinyl: z.string().min(2).max(50).optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      search: undefined,
+      artist: undefined,
+      vinyl: undefined,
       genre: undefined,
     },
   });
@@ -57,7 +56,8 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
     setLoading(true);
 
     setFilters({
-      search: values.search,
+      vinyl: values.vinyl,
+      artist: values.artist,
       genre: values.genre === "none" ? undefined : values.genre,
     });
 
@@ -75,16 +75,14 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
           scale: 0.9,
         }}
         key="button"
-        className="fixed bottom-5 right-10 p-4 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  z-30"
+        className="fixed bottom-5 right-10 p-4 border-vinyl-100 dark:border-vinyl-300 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  z-30"
         style={{
           borderRadius: 16,
-          border: `1px solid ${
-            theme === "dark" || theme === "system" ? "#FDF7E5" : "#654345"
-          }`,
+          borderWidth: 1,
         }}
         layoutId="wrapper"
       >
-        <motion.div layoutId="search">
+        <motion.div layoutId="vinyl">
           <MagnifyingGlassIcon width={24} height={24} />
         </motion.div>
       </motion.button>
@@ -93,12 +91,10 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
         {open ? (
           <motion.div
             ref={ref}
-            className="filters-popover fixed bottom-5 right-10 z-40 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  p-6 max-w-[280px] md:max-w-[450px]"
+            className="filters-popover fixed bottom-5 right-10 z-40 border-vinyl-100 dark:border-vinyl-300 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  p-6 max-w-[280px] md:max-w-[450px]"
             style={{
               borderRadius: 16,
-              border: `1px solid ${
-                theme === "dark" || theme === "system" ? "#FDF7E5" : "#654345"
-              }`,
+              borderWidth: 1,
             }}
             layoutId="wrapper"
           >
@@ -117,25 +113,44 @@ export function Filters({ id, title }: { id?: string; title?: string }) {
                 >
                   <FormField
                     control={form.control}
-                    name="search"
+                    name="vinyl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Search</FormLabel>
+                        <FormLabel>Vinyl</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Input
                               autoFocus
-                              placeholder="Anything :)"
-                              className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100 dark:placeholder:text-vinyl-300 dark:text-vinyl-300"
+                              placeholder="Blonde"
+                              className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100/60 dark:placeholder:text-vinyl-300/60 dark:text-vinyl-300"
                               {...field}
                             />
                             <motion.div
                               aria-hidden
                               className="absolute inset-y-0 left-0 flex items-center pl-3"
-                              layoutId="search"
+                              layoutId="vinyl"
                             >
                               <MagnifyingGlassIcon />
                             </motion.div>
+                          </div>
+                        </FormControl>
+                        {/* <FormMessage /> */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="artist"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Artist</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              placeholder="Frank Ocean :)"
+                              className="py-2 border rounded-md placeholder:text-vinyl-100/60 dark:placeholder:text-vinyl-300/60 dark:text-vinyl-300"
+                              {...field}
+                            />
                           </div>
                         </FormControl>
                         {/* <FormMessage /> */}

@@ -3,18 +3,20 @@
 import React from "react";
 
 export type DataType = {
-  master_id: string;
-  cover_image: string;
-  title: string;
   artist: string;
   country: string;
+  cover_image: string;
+  format: [];
   genre: [];
+  master_id: string;
+  title: string;
   year: string;
 };
 
 type FilterType = {
-  search?: string;
+  artist?: string;
   genre?: string;
+  vinyl?: string;
 };
 
 interface AppContextValue {
@@ -43,8 +45,9 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const [page, setPage] = React.useState<number>(1);
   const [totalPages, setTotalPages] = React.useState<number>(1);
   const [filters, setFilters] = React.useState<FilterType>({
-    search: undefined,
+    artist: undefined,
     genre: undefined,
+    vinyl: undefined,
   });
   const [error, setError] = React.useState("");
 

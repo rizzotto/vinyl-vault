@@ -50,12 +50,13 @@ type VinylType = {
 };
 
 export function Vinyl({
-  id,
-  cover,
-  title,
   artist,
   country,
+  cover,
+  formats,
   genre,
+  id,
+  title,
   year,
   ...rest
 }: {
@@ -64,6 +65,7 @@ export function Vinyl({
   title: string;
   cover: string;
   country: string;
+  formats: [];
   genre: [];
   year: string;
 }) {
@@ -73,7 +75,7 @@ export function Vinyl({
   const [content, setContent] = React.useState<VinylType | null>(null);
   const [loadContent, setLoadContent] = React.useState(false);
 
-  const [lala, setLala] = React.useState(null);
+  const [spotify, setSpotify] = React.useState<string | null>(null);
 
   const { loading } = useAppContext();
 
@@ -81,6 +83,8 @@ export function Vinyl({
   useOnClickOutside(ref, () => {
     setClick(false);
   });
+
+  // console.log(content);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -106,7 +110,7 @@ export function Vinyl({
     });
 
     const data = await response.json();
-    return data.access_token; // Use this token in your API requests
+    return data.access_token;
   }
 
   async function searchSpotifyAlbum() {
@@ -114,6 +118,7 @@ export function Vinyl({
     const query = `album:${encodeURIComponent(
       title
     )} artist:${encodeURIComponent(artist)}`;
+
     const url = `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`;
 
     try {
@@ -128,12 +133,14 @@ export function Vinyl({
       }
 
       const data = await response.json();
+
       if (data.albums.items.length > 0) {
-        // console.log(data.albums.items[0]);
-        setLala(data.albums.items[0].external_urls.spotify); // Return the first matching album
+        setSpotify(data.albums.items[0].external_urls.spotify);
+      } else {
+        setSpotify("none");
       }
 
-      return null; // No album found
+      return null;
     } catch (error) {
       console.error("Error searching Spotify:", error);
       throw error;
@@ -187,7 +194,7 @@ export function Vinyl({
               key={`${id}-selected`}
               layoutId={`${id}-inner`}
               ref={ref}
-              className="inner relative flex h-fit flex-col overflow-hidden bg-vinyl-100 dark:bg-vinyl-300 p-8 min-w-[200px] md:min-w-[400px] items-start gap-4"
+              className="inner relative overflow-auto flex h-fit flex-col max-h-[95vh] bg-vinyl-100 dark:bg-vinyl-300 p-4 md:p-8 w-full m-2 min-w-[200px] md:min-w-[400px] max-w-[530px] items-start gap-4"
               style={{ borderRadius: 12 }}
             >
               <Button
@@ -203,7 +210,7 @@ export function Vinyl({
                   layoutId={`${id}-cover`}
                   src={cover}
                 />
-                <div>
+                <div className="flex flex-col gap-1">
                   <div>
                     <div>Year</div>
                     <Badge>{year}</Badge>
@@ -212,15 +219,25 @@ export function Vinyl({
                     <div>Country</div>
                     <Badge>{country}</Badge>
                   </div>
+                  <div>Genres</div>
+                  <ul className="flex flex-wrap gap-2">
+                    {genre.map((g, i) => (
+                      <li key={`${g}-${i}`} className="flex-shrink-0">
+                        <Badge>{g}</Badge>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-              <ul className="flex gap-2">
-                {genre.map((g, i) => (
-                  <Badge key={`${g}-${i}`} variant="outline">
-                    {g}
+
+              <ul className="flex gap-1 items-start">
+                {formats.map((format) => (
+                  <Badge variant="outline" key={format}>
+                    {format}
                   </Badge>
                 ))}
               </ul>
+
               <div>
                 <h3 className="text-3xl font-bold">{title}</h3>
                 <h5>{artist}</h5>
@@ -252,16 +269,18 @@ export function Vinyl({
               ) : (
                 <Skeleton className="h-[220px] w-[100%] rounded-xl" />
               )}
-              {!lala ? (
+              {spotify === "none" ? (
+                <></>
+              ) : spotify === null ? (
                 <Skeleton className="h-[80px] w-[100%px] rounded-xl" />
               ) : (
-                <Spotify wide width="100%" link={lala} />
+                <Spotify wide width="100%" link={spotify} />
               )}
             </motion.div>
           </div>
         ) : null}
       </AnimatePresence>
-      <div className="flex" {...rest}>
+      <div id={id} className="flex" {...rest}>
         <AnimatePresence mode="popLayout">
           <motion.div
             key={`${id}-wrapper`}

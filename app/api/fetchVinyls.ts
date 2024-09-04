@@ -33,7 +33,7 @@ export function useFetchVinyls() {
         setLoading(false);
       }
     },
-    [setLoading, setPage, setResults, setTotalPages]
+    [setLoading, setPage, setResults, setTotalPages, setError]
   );
 
   return {
