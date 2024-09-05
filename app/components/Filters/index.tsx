@@ -5,6 +5,7 @@ import "./styles.css";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "../Input";
 import { Cross1Icon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { isMobile } from "react-device-detect";
 import {
   Select,
   SelectContent,
@@ -120,7 +121,7 @@ export function Filters() {
                         <FormControl>
                           <div className="relative">
                             <Input
-                              autoFocus
+                              autoFocus={!isMobile}
                               placeholder="Blonde"
                               className="pl-8 pr-4 py-2 border rounded-md placeholder:text-vinyl-100/60 dark:placeholder:text-vinyl-300/60 dark:text-vinyl-300"
                               {...field}

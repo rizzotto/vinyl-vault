@@ -14,7 +14,21 @@ import { Badge } from "../Badge";
 import { Spotify } from "react-spotify-embed";
 import { ScrollArea } from "../ScrollArea";
 import { Button } from "../Button";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import {
+  ArrowLeftIcon,
+  CaretLeftIcon,
+  Cross1Icon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  ImageCarousel,
+} from "../Carousel";
 
 const encodedCredentials = btoa(
   `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
@@ -47,6 +61,16 @@ type VinylType = {
       uri: string;
     }
   ];
+  images: [
+    {
+      height: string;
+      resource_url: string;
+      type: string;
+      uri: string;
+      uri150: string;
+      width: string;
+    }
+  ];
 };
 
 export function Vinyl({
@@ -72,6 +96,8 @@ export function Vinyl({
   const [hover, setHover] = React.useState(false);
   const [click, setClick] = React.useState(false);
 
+  const [carouselOpen, setCarouselOpen] = React.useState(false);
+
   const [content, setContent] = React.useState<VinylType | null>(null);
   const [loadContent, setLoadContent] = React.useState(false);
 
@@ -80,11 +106,11 @@ export function Vinyl({
   const { loading } = useAppContext();
 
   const ref = React.useRef(null);
+
   useOnClickOutside(ref, () => {
     setClick(false);
+    setCarouselOpen(false);
   });
-
-  // console.log(content);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -151,7 +177,12 @@ export function Vinyl({
     setLoadContent(true);
     try {
       const searchResponse = await fetch(
-        `https://api.discogs.com/masters/${id}`
+        `https://api.discogs.com/masters/${id}?token=${process.env.NEXT_PUBLIC_DISCOGS_API_TOKEN}`,
+        {
+          headers: {
+            "User-Agent": "VinylVault/1.0",
+          },
+        }
       );
 
       if (!searchResponse.ok) {
@@ -161,7 +192,8 @@ export function Vinyl({
       const searchData = await searchResponse.json();
       setContent(searchData);
     } catch (error) {
-      // setError("Failed to fetch trending releases");
+      // Handle the error appropriately
+      console.error("Failed to fetch vinyl:", error);
     } finally {
       setLoadContent(false);
     }
@@ -174,6 +206,8 @@ export function Vinyl({
     }
     setClick(true);
   }
+
+  const images = content?.images.slice(1, 5);
 
   return (
     <>
@@ -194,87 +228,158 @@ export function Vinyl({
               key={`${id}-selected`}
               layoutId={`${id}-inner`}
               ref={ref}
-              className="inner relative overflow-auto flex h-fit flex-col max-h-[95vh] bg-vinyl-100 dark:bg-vinyl-300 p-4 md:p-8 w-full m-2 min-w-[200px] md:min-w-[400px] max-w-[530px] items-start gap-4"
+              className={cn(
+                "inner relative overflow-auto flex h-fit flex-col max-h-[95vh] bg-vinyl-100 dark:bg-vinyl-300 p-4 md:p-8 w-full m-2 min-w-[200px] md:min-w-[400px] max-w-[530px] items-start gap-4",
+                carouselOpen && "p-6 md:p-14"
+              )}
               style={{ borderRadius: 12 }}
             >
               <Button
                 onClick={() => setClick(false)}
-                className="py-2 px-1 h-[24px] bg-transparent absolute top-2 right-2"
+                className={cn(
+                  "py-2 px-1 h-[24px] bg-transparent absolute top-2 right-2 z-50",
+                  carouselOpen && "top-1 right-1 md:top-2 md:right-2"
+                )}
                 variant="ghost"
               >
                 <Cross1Icon />
               </Button>
-              <div className="flex items-start w-full gap-4">
-                <motion.img
-                  className="rounded-md h-[200px] w-[200px]"
-                  layoutId={`${id}-cover`}
-                  src={cover}
-                />
-                <div className="flex flex-col gap-1">
-                  <div>
-                    <div>Year</div>
-                    <Badge>{year}</Badge>
-                  </div>
-                  <div>
-                    <div>Country</div>
-                    <Badge>{country}</Badge>
-                  </div>
-                  <div>Genres</div>
-                  <ul className="flex flex-wrap gap-2">
-                    {genre.map((g, i) => (
-                      <li key={`${g}-${i}`} className="flex-shrink-0">
-                        <Badge>{g}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
 
-              <ul className="flex gap-1 items-start">
-                {formats.map((format) => (
-                  <Badge variant="outline" key={format}>
-                    {format}
-                  </Badge>
-                ))}
-              </ul>
-
-              <div>
-                <h3 className="text-3xl font-bold">{title}</h3>
-                <h5>{artist}</h5>
-              </div>
-              {!loadContent && content && content.tracklist ? (
+              {carouselOpen ? (
                 <>
-                  <Separator />
-                  <ScrollArea className="h-[200px] w-full">
-                    <ul>
-                      {content.tracklist.map((t, i) => (
-                        <div
-                          key={`${t}-${i}`}
-                          className="flex justify-between my-2 mr-3"
-                        >
-                          <div
-                            className={cn(
-                              t.type_ === "heading" &&
-                                "font-bold bg-vinyl-200 w-full p-1 rounded-md"
-                            )}
-                          >
-                            {t.title}
-                          </div>
-                          <div>{t.position}</div>
-                        </div>
+                  <Button
+                    onClick={() => setCarouselOpen(false)}
+                    className={cn(
+                      "py-2 px-1 h-[24px] bg-transparent absolute top-2 left-2 z-50",
+                      carouselOpen && "top-1 left-1 md:top-2 md:left-2"
+                    )}
+                    variant="ghost"
+                  >
+                    <ArrowLeftIcon />
+                  </Button>
+                  <Carousel>
+                    <CarouselContent>
+                      {content?.images.map((img, index) => (
+                        <CarouselItem key={img.resource_url}>
+                          <motion.img
+                            // {...(index === 0 && { layoutId: `${id}-carousel` })}
+                            layoutId={`${id}-carousel-${index}`}
+                            // className="rounded-sm"
+                            src={img.uri}
+                            style={{ borderRadius: 12 }}
+                          />
+                        </CarouselItem>
                       ))}
-                    </ul>
-                  </ScrollArea>
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
                 </>
               ) : (
-                <Skeleton className="h-[220px] w-[100%] rounded-xl" />
-              )}
-              {spotify === "none" ? (
-                <></>
-              ) : spotify === null ? (
-                <Skeleton className="h-[80px] w-[100%px] rounded-xl" />
-              ) : (
-                <Spotify wide width="100%" link={spotify} />
+                <>
+                  <div className="flex w-full gap-2">
+                    <motion.img
+                      className="rounded-md h-[200px] w-[200px]"
+                      layoutId={
+                        carouselOpen ? `${id}-carousel-0` : `${id}-cover`
+                      }
+                      src={cover}
+                    />
+                    {/* tiny imgs */}
+                    <div className="flex flex-col justify-between gap-2 min-w-10">
+                      {!loadContent
+                        ? images?.map((img, index) => (
+                            <div className="relative rounded-sm" key={index}>
+                              <motion.img
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className={`rounded-sm h-10 w-10`}
+                                src={img.uri150}
+                                alt="Image"
+                              />
+                              {index === images.length - 1 && (
+                                <button
+                                  onClick={() => setCarouselOpen(true)}
+                                  className="absolute flex items-center justify-center inset-0 h-10 w-10 rounded-sm bg-primary/80 border border-vinyl-300 dark:border-vinyl-100"
+                                >
+                                  <PlusIcon width={24} height={24} />
+                                </button>
+                              )}
+                            </div>
+                          ))
+                        : Array.from({ length: 4 }).map((_, index) => (
+                            <Skeleton
+                              key={index}
+                              className="h-10 w-10 rounded-sm"
+                            />
+                          ))}
+                    </div>
+
+                    <div className="flex flex-col gap-1 ml-2">
+                      <div>
+                        <div>Year</div>
+                        <Badge>{year}</Badge>
+                      </div>
+                      <div>
+                        <div>Country</div>
+                        <Badge>{country}</Badge>
+                      </div>
+                      <div>Genres</div>
+                      <ul className="flex flex-wrap gap-2">
+                        {genre.map((g, i) => (
+                          <li key={`${g}-${i}`} className="flex-shrink-0">
+                            <Badge>{g}</Badge>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <ul className="flex gap-1 items-start">
+                    {formats.map((format) => (
+                      <Badge variant="outline" key={format}>
+                        {format}
+                      </Badge>
+                    ))}
+                  </ul>
+
+                  <div>
+                    <h3 className="text-3xl font-bold">{title}</h3>
+                    <h5>{artist}</h5>
+                  </div>
+                  {!loadContent ? (
+                    <>
+                      <Separator />
+                      <ScrollArea className="h-[200px] w-full">
+                        {content?.tracklist.map((t, i) => (
+                          <div
+                            key={`${t}-${i}`}
+                            className="flex justify-between my-2 mr-3"
+                          >
+                            <div
+                              className={cn(
+                                t.type_ === "heading" &&
+                                  "font-bold bg-vinyl-200 dark:text-vinyl-300 w-full p-1 rounded-md"
+                              )}
+                            >
+                              {t.title}
+                            </div>
+                            <div>{t.position}</div>
+                          </div>
+                        ))}
+                      </ScrollArea>
+                    </>
+                  ) : (
+                    <Skeleton className="h-[220px] w-[100%] rounded-xl" />
+                  )}
+                  {spotify === "none" ? (
+                    <></>
+                  ) : spotify === null ? (
+                    <Skeleton className="h-[80px] w-[100%px] rounded-xl" />
+                  ) : (
+                    <Spotify wide width="100%" link={spotify} />
+                  )}
+                </>
               )}
             </motion.div>
           </div>
@@ -301,6 +406,8 @@ export function Vinyl({
                 whileHover={{
                   scale: 0.98,
                 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 className="rounded-md h-[300px] w-[300px] shadow-lg "
                 src={cover}
                 alt="floater"

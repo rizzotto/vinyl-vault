@@ -132,38 +132,35 @@ export default function VinylList() {
         </div>
       )}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {results && (
-        <>
-          <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100 dark:scrollbar-thumb-vinyl-300  overflow-y-scroll bg-vinyl-300 dark:bg-vinyl-100">
-            {loading
-              ? skeletons
-              : filteredResults.map((result, index) => {
-                  const [artist, title] = result.title.split("-");
-                  return (
-                    <motion.div
-                      key={result.master_id}
-                      initial={{ opacity: 0, y: index * 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
-                    >
-                      <Vinyl
-                        id={result.master_id}
-                        cover={result.cover_image}
-                        title={title}
-                        artist={artist}
-                        country={result.country}
-                        genre={result.genre}
-                        year={result.year}
-                        formats={result.format}
-                      />
-                    </motion.div>
-                  );
-                })}
-          </div>
-          {results.length > 0 && (
-            <Pagination className="my-1">{renderPagination()}</Pagination>
-          )}
-        </>
+
+      <div className="gap-8 items-center place-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  overflow-x-hidden py-8 scrollbar-thumb-rounded-full scrollbar scrollbar-thumb-vinyl-100 dark:scrollbar-thumb-vinyl-300  overflow-y-scroll bg-vinyl-300 dark:bg-vinyl-100">
+        {loading
+          ? skeletons
+          : filteredResults.map((result, index) => {
+              const [artist, title] = result.title.split("-");
+              return (
+                <motion.div
+                  key={result.master_id}
+                  initial={{ opacity: 0, y: index * 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                >
+                  <Vinyl
+                    id={result.master_id}
+                    cover={result.cover_image}
+                    title={title}
+                    artist={artist}
+                    country={result.country}
+                    genre={result.genre}
+                    year={result.year}
+                    formats={result.format}
+                  />
+                </motion.div>
+              );
+            })}
+      </div>
+      {results && results.length > 0 && (
+        <Pagination className="my-1">{renderPagination()}</Pagination>
       )}
     </>
   );
