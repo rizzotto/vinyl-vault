@@ -395,22 +395,47 @@ export function Vinyl({
                 alt="floater"
               />
             </button>
-            <motion.img
-              style={{ position: "absolute", zIndex: 10 }}
-              className="h-[320px] w-[320px]"
-              initial={{ y: -315, opacity: 0 }}
-              animate={
-                click
-                  ? { x: 0 }
-                  : { x: hover ? 130 : 0, opacity: hover ? 1 : 0 }
-              }
-              transition={{
-                type: "smooth",
-                duration: 0.3,
-              }}
-              src={vinyl.src}
-              alt="floater"
-            />
+            <div className="relative">
+              <motion.img
+                style={{ position: "absolute", zIndex: 10 }}
+                className="h-[320px] w-[320px]"
+                initial={{ y: -315, opacity: 0 }}
+                animate={
+                  click
+                    ? { x: 0 }
+                    : {
+                        x: hover ? 130 : 0,
+                        opacity: hover ? 1 : 0,
+                        rotate: hover ? 30 : 0,
+                      }
+                }
+                transition={{
+                  type: "smooth",
+                  duration: 0.3,
+                }}
+                src={vinyl.src}
+                alt="vinyl"
+              />
+              <motion.img
+                style={{ position: "absolute", zIndex: 10 }}
+                className="h-[85px] w-[90px] rounded-full"
+                initial={{ y: -200, opacity: 0 }}
+                animate={
+                  click
+                    ? { x: 0 }
+                    : {
+                        x: hover ? 240 : 100,
+                        opacity: hover ? 1 : 0,
+                        rotate: hover ? 30 : 0,
+                      }
+                }
+                transition={{
+                  type: "smooth",
+                  duration: 0.3,
+                }}
+                src={cover}
+              />
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
