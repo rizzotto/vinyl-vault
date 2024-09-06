@@ -92,7 +92,7 @@ export function Filters() {
         {open ? (
           <motion.div
             ref={ref}
-            className="filters-popover fixed bottom-5 right-10 z-40 border-vinyl-100 dark:border-vinyl-300 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  p-6 max-w-[280px] md:max-w-[450px]"
+            className="filters-popover fixed bottom-0 right-0 md:bottom-5 md:right-10 z-40 border-vinyl-100 dark:border-vinyl-300 bg-vinyl-300 dark:bg-vinyl-100 text-vinyl-100 dark:text-vinyl-300  p-6  md:max-w-[450px]"
             style={{
               borderRadius: 16,
               borderWidth: 1,
