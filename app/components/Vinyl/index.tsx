@@ -17,24 +17,17 @@ import { Button } from "../Button";
 import {
   ArrowLeftIcon,
   CaretLeftIcon,
+  CaretRightIcon,
   Cross1Icon,
   PlusIcon,
 } from "@radix-ui/react-icons";
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  ImageCarousel,
-} from "../Carousel";
+import Carousel from "../Carousel";
 
 const encodedCredentials = btoa(
   `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.NEXT_PUBLIC_CLIENT_SECRET}`
 );
 
-type VinylType = {
+export type VinylType = {
   tracklist: [
     {
       position: string;
@@ -245,7 +238,7 @@ export function Vinyl({
                 <Cross1Icon />
               </Button>
 
-              {carouselOpen ? (
+              {carouselOpen && content ? (
                 <>
                   <Button
                     onClick={() => setCarouselOpen(false)}
@@ -257,32 +250,14 @@ export function Vinyl({
                   >
                     <ArrowLeftIcon />
                   </Button>
-                  <Carousel>
-                    <CarouselContent>
-                      {content?.images.map((img, index) => (
-                        <CarouselItem key={img.resource_url}>
-                          <motion.img
-                            // {...(index === 0 && { layoutId: `${id}-carousel` })}
-                            layoutId={`${id}-carousel-${index}`}
-                            // className="rounded-sm"
-                            src={img.uri}
-                            style={{ borderRadius: 12 }}
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </Carousel>
+                  <Carousel id={id} slides={content.images} />
                 </>
               ) : (
                 <>
                   <div className="flex w-full gap-2">
                     <motion.img
                       className="rounded-md h-[200px] w-[200px]"
-                      layoutId={
-                        carouselOpen ? `${id}-carousel-0` : `${id}-cover`
-                      }
+                      layoutId={`${id}-cover`}
                       src={cover}
                     />
                     {/* tiny imgs */}
@@ -370,7 +345,14 @@ export function Vinyl({
                       </ScrollArea>
                     </>
                   ) : (
-                    <Skeleton className="h-[220px] w-[100%] rounded-xl" />
+                    <>
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                      <Skeleton className="h-[18px] w-[100%] rounded-xl" />
+                    </>
                   )}
                   {spotify === "none" ? (
                     <></>
